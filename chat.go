@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	client, err := ably.NewRealtime(ably.WithKey("w5_O4Q.EJkpXw:wKz-OjK5KMpImH5IZBA3Vq0kxH1niQMN7LsdaKKCKDU"))
+	client, err := ably.NewRealtime(ably.WithKey("<Ably API KEY>"))
 	if err != nil {
 		panic(err)
 	}
