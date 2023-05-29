@@ -11,7 +11,7 @@ import (
 var Client *ably.Realtime
 
 func AblyInit() error {
-	client, err := ably.NewRealtime(ably.WithKey("w5_O4Q.U7ulRg:h_hrf0BxtKFnBXB1-NyJKyLlBe_Q9T9nAVQC8QWk7us"))
+	client, err := ably.NewRealtime(ably.WithKey("<ABLY-API-KEY>"))
 	if err != nil {
 		panic(err)
 		return err
