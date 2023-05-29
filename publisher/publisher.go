@@ -2,9 +2,10 @@ package main
 
 import (
 	"Pub-Sub/broker"
-	"context"
-	"fmt"
-	"time"
+	"encoding/json"
+	"github.com/ably/ably-go/ably"
+	"github.com/go-chi/chi/v5"
+	"net/http"
 )
 
 func main() {
@@ -12,15 +13,27 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	channel := "chat"
-	publisher := broker.Client.Channels.Get(channel)
+	channelName := "chat"
+	channel := broker.Client.Channels.Get(channelName)
 
-	for i := 0; i < 10; i++ {
-		time.Sleep(1 * time.Second)
-		err := publisher.Publish(context.Background(), "message", "Hello World!")
-		if err != nil {
-			panic(err)
+	r := Routes(channel)
+	http.ListenAndServe(":8080", r)
+}
+
+func Routes(channel *ably.RealtimeChannel) http.Handler {
+	r := chi.NewRouter()
+	r.Post("/api/publish", func(w http.ResponseWriter, r *http.Request) {
+		var message *ably.Message
+		if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
-		fmt.Printf("Sent message %d\n", i)
-	}
+		got := broker.Publishing(channel, message)
+		if got == false {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+	return r
 }
