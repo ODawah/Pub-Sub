@@ -2,21 +2,27 @@ package main
 
 import (
 	"Pub-Sub/broker"
+	"Pub-Sub/persistence"
 	"fmt"
+	"github.com/ably/ably-go/ably"
 )
 
 func main() {
-	broker.AblyInit()
-	err := broker.AblyInit()
+	err := persistence.InitMongo("<MONGO-URI>")
 	if err != nil {
 		panic(err)
 	}
-	ch := make(chan string)
+	err = broker.AblyInit()
+	if err != nil {
+		panic(err)
+	}
+	ch := make(chan *ably.Message)
 	broker.Subscribe(broker.Client.Channels.Get("chat"), ch)
 	for {
 		select {
 		case <-ch:
-			fmt.Println(<-ch)
+			ev := <-ch
+			fmt.Println(ev)
 		}
 	}
 }
